@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Henry Hsu — Portfolio</title>
+<style>
+  /* ============================================================
+     THEME TOKENS — change colors/spacing in ONE place here.
+     ============================================================ */
+  :root {
+    --bg:        #fbfaf8;
+    --surface:   #ffffff;
+    --text:      #1c2421;
+    --muted:     #58635d;
+    --faint:     #8b958f;
+    --border:    #e8e4dc;
+    --shadow:    0 1px 2px rgba(28,36,33,.04), 0 8px 24px rgba(28,36,33,.06);
+    --shadow-lg: 0 1px 2px rgba(28,36,33,.05), 0 18px 44px rgba(28,36,33,.12);
+
+    --accent:        #2f6f5e;
+    --accent-strong: #235343;
+
+    /* Per-type accents (Research / Data / Tools) */
+    --research: #2f6f5e; --research-soft: #eef4f1; --research-strong: #235343;
+    --data:     #2563a6; --data-soft:     #eef3fa; --data-strong:     #1b4a7e;
+    --tools:    #a85d12; --tools-soft:    #faf2e9; --tools-strong:    #82480e;
+
+    --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:24px;
+    --s-6:32px; --s-7:48px; --s-8:72px; --s-9:104px;
+    --radius:14px; --radius-s:8px; --maxw:1080px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  /* Type → accent mapping. Components below read var(--c). */
+  [data-type="Research"] { --c: var(--research); --c-soft: var(--research-soft); --c-strong: var(--research-strong); }
+  [data-type="Data"]     { --c: var(--data);     --c-soft: var(--data-soft);     --c-strong: var(--data-strong); }
+  [data-type="Tools"]    { --c: var(--tools);    --c-soft: var(--tools-soft);    --c-strong: var(--tools-strong); }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; font-family: var(--font); color: var(--text); background: var(--bg);
+    line-height: 1.55; font-size: 17px; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--s-5); }
+  a { color: inherit; }
+
+  /* ---- Header / above the fold ---- */
+  header { padding: var(--s-9) 0 var(--s-7); }
+  .eyebrow { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0 0 var(--s-4); }
+  .name { font-size: clamp(2.6rem, 6vw, 4.2rem); line-height: 1.02; letter-spacing: -.03em; font-weight: 800; margin: 0 0 var(--s-4); }
+  .positioning { font-size: clamp(1.1rem, 2.4vw, 1.5rem); color: var(--muted); max-width: 46ch; margin: 0; line-height: 1.4; }
+
+  /* ---- Filter bar ---- */
+  .controls { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); padding: var(--s-4) 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: var(--s-3); }
+  .chip { font: inherit; font-size: 14px; font-weight: 600; border: 1px solid var(--border); background: var(--surface); color: var(--muted); padding: var(--s-2) var(--s-4); border-radius: 999px; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+  .chip:hover { border-color: var(--chipc, var(--accent)); color: var(--chipc, var(--accent-strong)); }
+  .chip[aria-pressed="true"] { background: var(--chipc, var(--accent)); border-color: var(--chipc, var(--accent)); color: #fff; }
+  .chip .count { opacity: .65; margin-left: 6px; font-weight: 500; }
+
+  /* ---- Project grid + scan cards ---- */
+  main { padding: var(--s-8) 0 var(--s-9); }
+  .grid { display: grid; gap: var(--s-5); grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: var(--s-6); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: var(--s-4);
+    cursor: pointer; text-align: left; font: inherit; color: inherit; width: 100%;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: color-mix(in srgb, var(--c) 35%, var(--border)); }
+  .card:focus-visible { outline: 2px solid var(--c); outline-offset: 3px; }
+  .badge { align-self: flex-start; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; color: var(--c-strong); background: var(--c-soft); }
+  .headline { font-size: clamp(1.25rem, 2.4vw, 1.6rem); font-weight: 800; line-height: 1.18; letter-spacing: -.02em; margin: 0; }
+  .headline strong { color: var(--c-strong); }
+  .impact { border-left: 3px solid var(--c); background: var(--c-soft); border-radius: 0 var(--radius-s) var(--radius-s) 0; padding: var(--s-3) var(--s-4); }
+  .impact .lbl { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--c); display: block; margin-bottom: 2px; }
+  .impact p { margin: 0; font-size: 15px; }
+  .impact strong { color: var(--c-strong); font-weight: 800; }
+  .tags { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .tag { font-size: 12.5px; color: var(--faint); border: 1px solid var(--border); border-radius: var(--radius-s); padding: 3px 9px; }
+  .open-cue { margin-top: auto; font-size: 14px; font-weight: 700; color: var(--c-strong); display: inline-flex; align-items: center; gap: 6px; }
+  .card:hover .open-cue .arr { transform: translateX(4px); }
+  .open-cue .arr { transition: transform .15s; }
+
+  /* ---- Slide-over panel ---- */
+  .overlay { position: fixed; inset: 0; background: rgba(28,36,33,.42); opacity: 0; visibility: hidden; transition: opacity .25s, visibility .25s; z-index: 60; }
+  .overlay.show { opacity: 1; visibility: visible; }
+  .panel { position: fixed; top: 0; right: 0; height: 100%; width: min(580px, 94vw); background: var(--bg); box-shadow: -20px 0 60px rgba(28,36,33,.18); transform: translateX(100%); transition: transform .32s cubic-bezier(.4,0,.2,1); z-index: 61; overflow-y: auto; }
+  .panel.show { transform: translateX(0); }
+  .panel-head { background: var(--c); color: #fff; padding: 60px var(--s-6) var(--s-5); position: relative; }
+  .panel-head .badge { background: rgba(255,255,255,.2); color: #fff; }
+  .panel-head h2 { margin: var(--s-3) 0 0; font-size: clamp(1.5rem, 3vw, 1.9rem); line-height: 1.14; letter-spacing: -.02em; }
+  .panel-close { position: absolute; top: 18px; right: 18px; width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(255,255,255,.16); color: #fff; font-size: 20px; cursor: pointer; line-height: 1; }
+  .panel-close:hover { background: rgba(255,255,255,.28); }
+  .panel-close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .panel-body { padding: var(--s-6); display: flex; flex-direction: column; gap: var(--s-5); }
+  .panel-body .impact p { font-size: 16px; }
+  .seclabel { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); margin: 0 0 var(--s-2); }
+  .detail { font-size: 15px; color: var(--muted); margin: 0; }
+  .detail-list { margin: 0; padding-left: 18px; color: var(--muted); font-size: 15px; }
+  .detail-list li { margin: 4px 0; }
+  .links { display: flex; flex-wrap: wrap; gap: var(--s-4); }
+  .link { font-size: 15px; font-weight: 600; color: var(--c-strong); text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+  .link:hover { text-decoration: underline; }
+
+  footer { border-top: 1px solid var(--border); padding: var(--s-6) 0 var(--s-8); color: var(--faint); font-size: 13px; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal { opacity: 0; transform: translateY(12px); animation: rise .5s ease forwards; }
+    @keyframes rise { to { opacity: 1; transform: none; } }
+  }
+  @media (max-width: 600px) {
+    header { padding: var(--s-8) 0 var(--s-6); }
+    .card { padding: var(--s-5); }
+    .panel-head { padding: 52px var(--s-5) var(--s-4); }
+    .panel-body { padding: var(--s-5); }
+  }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+</style>
+</head>
+<body>
+
+<!-- Everything inside #page is made inert while the panel is open. -->
+<div id="page">
+  <header>
+    <div class="wrap">
+      <p class="eyebrow">Portfolio</p>
+      <h1 class="name" id="name"></h1>
+      <p class="positioning" id="positioning"></p>
+    </div>
+  </header>
+
+  <nav class="controls" aria-label="Filter projects by type">
+    <div class="wrap"><div class="chips" id="chips"></div></div>
+  </nav>
+
+  <main>
+    <div class="wrap"><div class="grid" id="grid"></div></div>
+  </main>
+
+  <footer><div class="wrap"><span id="footer"></span></div></footer>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<aside class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="panel-title" aria-hidden="true"></aside>
+
+<script>
+/* ============================================================
+   CONTENT — EDIT HERE. This is the only block you touch.
+   ------------------------------------------------------------
+   PROJECT SCHEMA (keep the order; the last three are OPTIONAL):
+     title         short, plain-language project name
+     type          "Research" | "Data" | "Tools"  (drives color + filter)
+     headline      ONE sentence stating the value/outcome (the scan line)
+     context       1–2 sentences: the problem/situation
+     contribution  1–2 sentences: what YOU specifically did
+     impact        the measurable result (numbers auto-emphasized)
+     tags          array of skills/tools
+     links         array of { label, url }.  Leave url:"" to hide a link.
+     --- optional depth (shown only in the slide-over panel) ---
+     method        array of bullet points: how you ran it
+     findings      array of bullet points: what you learned
+     outcome       array of bullet points: what it led to
+   Omit any optional field (or give []) and its panel section just won't show.
+
+   Card (the fast scan) shows: badge + headline + impact + tags.
+   The slide-over panel reveals everything else.
+   ============================================================ */
+  const CONTENT = {
+    name: "Henry Hsu",
+    positioning: "Seasoned UX researcher and analyst who turns business needs, user pain points, and messy behavioral data into decisions.",
+
+    projects: [
+      {
+        title: "Dog Rehoming: Root Cause Research",
+        type: "Research",
+        headline: "Uncovered why owners give up on their dogs — and turned it into a product direction that drew 50 beta sign-ups.",
+        context: "Each year ~3 million dogs enter U.S. shelters and ~700,000 are euthanized — 47% for preventable behavioral issues. The team set out to learn why owners stop training and end up rehoming their dogs.",
+        contribution: "As one of four team members, I designed the interview protocol and co-conducted 106 in-depth interviews (73 owners, 33 trainers), paired with field observation and contextual inquiry across three research rounds.",
+        impact: "Reframed the problem and shaped the MVP, moving the venture from exploration into development — with 50 early beta-testers signing up for the resulting dog-training app.",
+        tags: ["In-depth Interviews", "Contextual Inquiry", "Qualitative Research", "Double Diamond", "Entrepreneurship"],
+        links: [
+          // 👇 DROP YOUR PDF URL BETWEEN THE QUOTES. Use "./Endeavor.pdf" if the
+          //    PDF sits in the same folder as this file. Empty url = link hidden.
+          { label: "Project deck (PDF)", url: ".Sniffy.pdf" }
+        ],
+        method: [
+          "Three rounds of field studies",
+          "106 in-depth interviews (73 owners, 33 trainers)",
+          "Observation + contextual inquiry in real training classes",
+          "Double Diamond framing, then a 'How Might We' brainstorming workshop"
+        ],
+        findings: [
+          "Owners underestimated the day-to-day commitment of training",
+          "Top pain points: overwhelming resources, demanding schedules, inconsistent training",
+          "Existing classes felt low-practice, inflexible, and high-cost yet ineffective"
+        ],
+        outcome: [
+          "Video-based training content",
+          "Customizable training schedule",
+          "Progress tracking system",
+          "Online consultation"
+        ]
+      }
+    ],
+
+    footer: "© Henry Hsu"
+  };
+
+/* ============================================================
+   RENDERING & LAYOUT — you do not need to touch anything below.
+   ============================================================ */
+  const TYPE_ORDER = ["Research", "Data", "Tools"];
+  const TYPE_COLOR = { All: "var(--accent)", Research: "var(--research)", Data: "var(--data)", Tools: "var(--tools)" };
+  const $ = (id) => document.getElementById(id);
+
+  const esc = (s) => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  const emphasizeNumbers = (s) => esc(s).replace(/(\$?\d[\d,]*(?:\.\d+)?\s?(?:million|billion|thousand|percent|%|k|x)?)/gi, "<strong>$1</strong>");
+
+  function renderHeader() {
+    $("name").textContent = CONTENT.name;
+    $("positioning").textContent = CONTENT.positioning;
+    $("footer").textContent = CONTENT.footer || "";
+    document.title = CONTENT.name + " — Portfolio";
+  }
+
+  function cardHTML(p, idx, i) {
+    const tags = (p.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join("");
+    return `
+      <button class="card reveal" data-type="${esc(p.type)}" data-idx="${idx}"
+              aria-haspopup="dialog" style="animation-delay:${i * 60}ms">
+        <span class="badge">${esc(p.type)}</span>
+        <span class="headline">${emphasizeNumbers(p.headline)}</span>
+        <span class="impact"><span class="lbl">Impact</span><p>${emphasizeNumbers(p.impact)}</p></span>
+        ${tags ? `<span class="tags">${tags}</span>` : ""}
+        <span class="open-cue">Read case study <span class="arr">→</span></span>
+      </button>`;
+  }
+
+  function renderGrid(filter) {
+    const items = CONTENT.projects
+      .map((p, idx) => ({ p, idx }))
+      .filter(o => filter === "All" || o.p.type === filter);
+    $("grid").innerHTML = items.map((o, i) => cardHTML(o.p, o.idx, i)).join("");
+  }
+
+  function renderChips() {
+    const present = TYPE_ORDER.filter(t => CONTENT.projects.some(p => p.type === t));
+    const count = (t) => CONTENT.projects.filter(p => p.type === t).length;
+    const items = [["All", CONTENT.projects.length], ...present.map(t => [t, count(t)])];
+    $("chips").innerHTML = items.map(([label, n], idx) => `
+      <button class="chip" aria-pressed="${idx === 0}" data-filter="${esc(label)}"
+              style="--chipc:${TYPE_COLOR[label] || "var(--accent)"}">
+        ${esc(label)}<span class="count">${n}</span>
+      </button>`).join("");
+
+    $("chips").addEventListener("click", (e) => {
+      const btn = e.target.closest(".chip"); if (!btn) return;
+      $("chips").querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", "false"));
+      btn.setAttribute("aria-pressed", "true");
+      renderGrid(btn.dataset.filter);
+    });
+  }
+
+  /* ---- Slide-over panel + focus management ---- */
+  const overlay = $("overlay"), panel = $("panel"), page = $("page");
+  let lastFocused = null;
+
+  // Optional list section — renders nothing if the field is missing/empty.
+  function section(label, arr) {
+    if (!Array.isArray(arr) || !arr.length) return "";
+    return `<div><p class="seclabel">${label}</p>
+      <ul class="detail-list">${arr.map(i => `<li>${esc(i)}</li>`).join("")}</ul></div>`;
+  }
+
+  function panelHTML(p) {
+    const links = (p.links || []).filter(l => l.url && l.url.trim())
+      .map(l => `<a class="link" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} →</a>`).join("");
+    return `
+      <div class="panel-head">
+        <button class="panel-close" aria-label="Close case study">✕</button>
+        <span class="badge">${esc(p.type)}</span>
+        <h2 id="panel-title">${esc(p.title)}</h2>
+      </div>
+      <div class="panel-body">
+        <div class="impact"><span class="lbl">Impact</span><p>${emphasizeNumbers(p.impact)}</p></div>
+        <div><p class="seclabel">The problem</p><p class="detail">${esc(p.context)}</p></div>
+        <div><p class="seclabel">What I did</p><p class="detail">${esc(p.contribution)}</p></div>
+        ${section("Method", p.method)}
+        ${section("What we learned", p.findings)}
+        ${section("Where it led", p.outcome)}
+        ${(p.tags && p.tags.length) ? `<div class="tags">${p.tags.map(t => `<span class="tag">${esc(t)}</span>`).join("")}</div>` : ""}
+        ${links ? `<div class="links">${links}</div>` : ""}
+      </div>`;
+  }
+
+  function openPanel(idx, opener) {
+    const p = CONTENT.projects[idx]; if (!p) return;
+    lastFocused = opener || document.activeElement;
+    panel.setAttribute("data-type", p.type);
+    panel.innerHTML = panelHTML(p);
+    overlay.classList.add("show");
+    panel.classList.add("show");
+    panel.setAttribute("aria-hidden", "false");
+    page.setAttribute("inert", "");
+    page.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "hidden";
+    panel.querySelector(".panel-close").addEventListener("click", closePanel);
+    panel.scrollTop = 0;
+    panel.querySelector(".panel-close").focus();
+  }
+
+  function closePanel() {
+    if (!panel.classList.contains("show")) return;
+    overlay.classList.remove("show");
+    panel.classList.remove("show");
+    panel.setAttribute("aria-hidden", "true");
+    page.removeAttribute("inert");
+    page.removeAttribute("aria-hidden");
+    document.body.style.overflow = "";
+    if (lastFocused && lastFocused.focus) lastFocused.focus();
+  }
+
+  $("grid").addEventListener("click", (e) => {
+    const card = e.target.closest(".card"); if (!card) return;
+    openPanel(Number(card.dataset.idx), card);
+  });
+
+  overlay.addEventListener("click", closePanel);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") return closePanel();
+    if (e.key === "Tab" && panel.classList.contains("show")) {
+      const f = panel.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+
+  renderHeader();
+  renderChips();
+  renderGrid("All");
+</script>
+</body>
+</html>
