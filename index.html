@@ -214,6 +214,43 @@
       },
 
       {
+        title: "In-Product Purchase Nudges",
+        type: "Data",
+        headline: "Drove over $1 million in incremental revenue in two months — two data-driven in-product nudges, zero added budget.",
+        context: "A marketing budget cut left the team needing to grow revenue without spending more, so we ran a brainstorm for ideas that leaned on data and product surfaces we already had — not new ad spend.",
+        contribution: "I proposed the idea, won leadership buy-in, and led the project with a PM and data scientists — designing two nudges: a cart cross-sell powered by market-basket analysis, and a sales-assist pop-up aimed at high-intent visitors who hadn't converted.",
+        impact: "The two nudges generated over $1 million in incremental revenue within two months of launch — with no extra ad spend.",
+        tags: ["Data Analysis", "Market Basket Analysis", "Amplitude", "Behavioral Targeting"],
+        links: [
+          // Add a demo, dashboard, or write-up link later, e.g. { label: "Write-up", url: "https://..." }
+        ],
+        details: [
+          { heading: "Nudge 1 — Cart cross-sell", bullets: [
+            "Ran a market-basket analysis on all historical purchase data",
+            "Surfaced the matches fans most often buy together, ranked by lift",
+            "When a shopper adds a match to their cart, a pop-up recommends the highest-lift companion match"
+          ] },
+          { heading: "The Cart Cross-Sell Pop-Up",
+            image: { src: "assets/purchase-nudges/cross-sell-popup.PNG",} },
+          { heading: "Nudge 2 — Sales assist for high-intent visitors", bullets: [
+            "Used Amplitude to find visitors with repeat sessions and long engagement but no purchase",
+            "Hypothesis: strong intent, but confusion over our product tiers stalled them",
+            "Served a pop-up offering a direct line to the sales team for human help"
+          ] },
+          { heading: "The Sales Assist Pop-Up",
+            image: { src: "assets/purchase-nudges/sales-assist-popup.PNG",} },
+          { heading: "Why it worked", text: "Both nudges ran on data and product surfaces we already owned, so there was no new ad spend — they simply converted existing traffic and purchase patterns into incremental revenue." }
+ 
+          // 👇 TO ADD A SCREENSHOT: upload the file to assets/purchase-nudges/ in your
+          //    repo, then add a block like this inside this details array:
+          // ,{ heading: "The cart cross-sell pop-up",
+          //    image: { src: "assets/purchase-nudges/cross-sell-popup.png",
+          //             alt: "Screenshot of the cart cross-sell recommendation pop-up",
+          //             caption: "Recommends the highest-lift companion match." } }
+        ]
+      },
+
+      {
         title: "Self-Serve UTM Generator",
         type: "Tools",
         headline: "Replaced a never-ending stream of one-off UTM requests with a fully self-serve generator that saved 50+ hours of manual work.",
