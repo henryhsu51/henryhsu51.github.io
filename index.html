@@ -32,17 +32,13 @@
     --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
 
-  /* Type → accent mapping. Components below read var(--c). */
   [data-type="Research"] { --c: var(--research); --c-soft: var(--research-soft); --c-strong: var(--research-strong); }
   [data-type="Data"]     { --c: var(--data);     --c-soft: var(--data-soft);     --c-strong: var(--data-strong); }
   [data-type="Tools"]    { --c: var(--tools);    --c-soft: var(--tools-soft);    --c-strong: var(--tools-strong); }
 
   *, *::before, *::after { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
-  body {
-    margin: 0; font-family: var(--font); color: var(--text); background: var(--bg);
-    line-height: 1.55; font-size: 17px; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
-  }
+  body { margin: 0; font-family: var(--font); color: var(--text); background: var(--bg); line-height: 1.55; font-size: 17px; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
   .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--s-5); }
   a { color: inherit; }
 
@@ -63,12 +59,7 @@
   /* ---- Project grid + scan cards ---- */
   main { padding: var(--s-8) 0 var(--s-9); }
   .grid { display: grid; gap: var(--s-5); grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
-  .card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: var(--s-6); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: var(--s-4);
-    cursor: pointer; text-align: left; font: inherit; color: inherit; width: 100%;
-    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-  }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--s-6); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: var(--s-4); cursor: pointer; text-align: left; font: inherit; color: inherit; width: 100%; transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
   .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: color-mix(in srgb, var(--c) 35%, var(--border)); }
   .card:focus-visible { outline: 2px solid var(--c); outline-offset: 3px; }
   .badge { align-self: flex-start; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; color: var(--c-strong); background: var(--c-soft); }
@@ -97,10 +88,20 @@
   .panel-close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
   .panel-body { padding: var(--s-6); display: flex; flex-direction: column; gap: var(--s-5); }
   .panel-body .impact p { font-size: 16px; }
-  .seclabel { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); margin: 0 0 var(--s-2); }
-  .detail { font-size: 15px; color: var(--muted); margin: 0; }
-  .detail-list { margin: 0; padding-left: 18px; color: var(--muted); font-size: 15px; }
+
+  /* Depth sections (the "detail blocks") */
+  .detail-block > * { margin: 0; }
+  .detail-block > * + * { margin-top: var(--s-3); }
+  .seclabel { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); }
+  .detail { font-size: 15px; color: var(--muted); }
+  .detail-list { padding-left: 18px; color: var(--muted); font-size: 15px; }
   .detail-list li { margin: 4px 0; }
+
+  /* Images inside a detail block */
+  .detail-figure { margin: 0; }
+  .detail-figure img { display: block; width: 100%; height: auto; border-radius: var(--radius-s); border: 1px solid var(--border); background: var(--surface); }
+  .detail-figure figcaption { font-size: 13px; color: var(--faint); margin-top: var(--s-2); }
+
   .links { display: flex; flex-wrap: wrap; gap: var(--s-4); }
   .link { font-size: 15px; font-weight: 600; color: var(--c-strong); text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
   .link:hover { text-decoration: underline; }
@@ -122,7 +123,6 @@
 </head>
 <body>
 
-<!-- Everything inside #page is made inert while the panel is open. -->
 <div id="page">
   <header>
     <div class="wrap">
@@ -150,23 +150,31 @@
 /* ============================================================
    CONTENT — EDIT HERE. This is the only block you touch.
    ------------------------------------------------------------
-   PROJECT SCHEMA (keep the order; the last three are OPTIONAL):
+   PROJECT SCHEMA:
      title         short, plain-language project name
-     type          "Research" | "Data" | "Tools"  (drives color + filter)
+     type          "Research" | "Data" | "Tools"   (drives color + filter)
      headline      ONE sentence stating the value/outcome (the scan line)
      context       1–2 sentences: the problem/situation
      contribution  1–2 sentences: what YOU specifically did
      impact        the measurable result (numbers auto-emphasized)
      tags          array of skills/tools
      links         array of { label, url }.  Leave url:"" to hide a link.
-     --- optional depth (shown only in the slide-over panel) ---
-     method        array of bullet points: how you ran it
-     findings      array of bullet points: what you learned
-     outcome       array of bullet points: what it led to
-   Omit any optional field (or give []) and its panel section just won't show.
+
+     details       OPTIONAL. Array of "blocks" shown in the slide-over panel,
+                   in order. Each block can mix any of these keys:
+                     heading  small section label (e.g. "How it works")
+                     text     one paragraph
+                     bullets  array of short bullet points
+                     image    { src, alt, caption }
+                              • src: filename of an image you uploaded to the
+                                repo, e.g. "utm-form.png" (case-sensitive)
+                              • alt: describe the image (accessibility)
+                              • caption: optional small line under the image
+                   Omit `details` entirely and the panel just shows the basics.
 
    Card (the fast scan) shows: badge + headline + impact + tags.
-   The slide-over panel reveals everything else.
+   The slide-over panel shows: impact, the problem, what I did, your details
+   blocks (text + bullets + images), then tags + links.
    ============================================================ */
   const CONTENT = {
     name: "Henry Hsu",
@@ -176,32 +184,60 @@
       {
         title: "Dog Rehoming: Root Cause Research",
         type: "Research",
-        headline: "Uncovered why dog owners give up on their dogs — and turned it into a product direction that drew 50 beta testers sign-ups.",
-        context: "Each year around 3 million dogs enter U.S. shelters and almost 700,000 are euthanized. 47% of these abandoned dogs are having behavioral issues. The team set out to learn why owners stop training and end up rehoming their dogs.",
-        contribution: "As the lead UX Researcher, I designed the interview protocol and co-conducted 106 in-depth interviews (73 owners, 33 trainers), paired with field observation and contextual inquiry across three research rounds.",
+        headline: "Uncovered why owners give up on their dogs — and turned it into a product direction that drew 50 beta sign-ups.",
+        context: "Each year ~3 million dogs enter U.S. shelters and ~700,000 are euthanized — 47% for preventable behavioral issues. The team set out to learn why owners stop training and end up rehoming their dogs.",
+        contribution: "As one of four team members, I designed the interview protocol and co-conducted 106 in-depth interviews (73 owners, 33 trainers), paired with field observation and contextual inquiry across three research rounds.",
         impact: "Reframed the problem and shaped the MVP, moving the venture from exploration into development — with 50 early beta-testers signing up for the resulting dog-training app.",
-        tags: ["In-depth Interviews", "Contextual Inquiry", "Qualitative Research", "Entrepreneurship"],
+        tags: ["In-depth Interviews", "Contextual Inquiry", "Qualitative Research", "Double Diamond", "Entrepreneurship"],
         links: [
-          // 👇 DROP YOUR PDF URL BETWEEN THE QUOTES. Use "./Endeavor.pdf" if the
-          //    PDF sits in the same folder as this file. Empty url = link hidden.
-          { label: "Project deck (PDF)", url: "Sniffy.pdf" }
+          { label: "Project deck (PDF)", url: "assets/dog-rehoming/Sniffy.pdf" }
         ],
-        method: [
-          "Three rounds of field studies",
-          "106 in-depth interviews",
-          "Observation + contextual inquiry in real training classes",
-          "Double Diamond framing, then a 'How Might We' brainstorming workshop"
+        details: [
+          { heading: "Method", bullets: [
+            "Three rounds of field studies",
+            "106 in-depth interviews (73 owners, 33 trainers)",
+            "Observation + contextual inquiry in real training classes",
+            "Double Diamond framing, then a 'How Might We' brainstorming workshop"
+          ] },
+          { heading: "What we learned", bullets: [
+            "Owners underestimated the day-to-day commitment of training",
+            "Top pain points: overwhelming resources, demanding schedules, inconsistent training",
+            "Existing classes felt low-practice, inflexible, and high-cost yet ineffective"
+          ] },
+          { heading: "Where it led", bullets: [
+            "Video-based training content",
+            "Customizable training schedule",
+            "Progress tracking system",
+            "Online consultation"
+          ] }
+        ]
+      },
+
+      {
+        title: "Self-Serve UTM Generator",
+        type: "Tools",
+        headline: "Replaced a never-ending stream of one-off UTM requests with a fully self-serve generator that saved 50+ hours of manual work.",
+        context: "Each of our 95 sales partners needed UTM-tagged links to attribute the revenue they drive. But the full FIFA World Cup 2026 schedule — 120 landing pages (104 matches + 16 venues) across 15 channels — meant hundreds of thousands of possible link combinations, and partners kept requesting them one at a time, with just two weeks to get campaigns live.",
+        contribution: "I spotted the opportunity to make this self-serve and single-handedly designed and built the generator within the two-week deadline — a Google Form intake that feeds a Sheet, where an Apps Script matches each request against a lookup table and returns the finished, tagged URL on a confirmation page.",
+        impact: "Sales partners now generate their own tracking links on demand — 170K+ possible combinations across 120 landing pages, 15 channels, and 95 partners — hundreds created so far, and the recurring ad-hoc request process is eliminated for good.",
+        tags: ["JavaScript", "Google Apps Script", "Google Forms", "Google Sheets", "Claude", "UX Design"],
+        links: [
+          // Add a demo or write-up link later, e.g. { label: "Live demo", url: "https://..." }
         ],
-        findings: [
-          "Owners underestimated the day-to-day commitment of training",
-          "Top pain points: overwhelming resources, demanding schedules, inconsistent training",
-          "Existing classes felt low-practice, inflexible, and high-cost yet ineffective"
-        ],
-        outcome: [
-          "Video-based positive reinforcement training content",
-          "Customizable training schedule",
-          "Progress tracking system",
-          "Online consultation with certified dog trainer"
+        details: [
+          { heading: "The challenge", text: "120 landing pages × 15 channels × 95 partners adds up to 170K+ possible tagged links. A single master list would be impossible to navigate and mostly wasted — each partner uses only a handful — and the requests never stopped as partners changed strategy. All of it had to ship in two weeks." },
+          { heading: "How it works",
+            image: { src: "assets/utm-generator/utm-flow.svg",
+                     alt: "Flow diagram: a partner submits a Google Form, the response syncs to a Google Sheet, an Apps Script looks up the request and builds the UTM, and a ready-to-use tagged URL is returned on the confirmation page.",
+                     caption: "The fully automated pipeline, end to end." } },
+          { heading: "Built with", text: "Google Forms + Sheets + Apps Script, with JavaScript for the URL logic — prototyped quickly using Claude to hit the deadline." }
+
+          // 👇 TO ADD A SCREENSHOT: upload the file to assets/utm-generator/ in your
+          //    repo, then add a block like this inside this details array:
+          // ,{ heading: "The partner-facing form",
+          //    image: { src: "assets/utm-generator/utm-form.png",
+          //             alt: "Screenshot of the UTM request Google Form",
+          //             caption: "Partners self-serve in a few clicks." } }
         ]
       }
     ],
@@ -268,16 +304,26 @@
   const overlay = $("overlay"), panel = $("panel"), page = $("page");
   let lastFocused = null;
 
-  // Optional list section — renders nothing if the field is missing/empty.
-  function section(label, arr) {
-    if (!Array.isArray(arr) || !arr.length) return "";
-    return `<div><p class="seclabel">${label}</p>
-      <ul class="detail-list">${arr.map(i => `<li>${esc(i)}</li>`).join("")}</ul></div>`;
+  // One flexible depth block: any mix of heading / text / bullets / image.
+  function detailBlock(b) {
+    if (!b) return "";
+    const parts = [];
+    if (b.heading) parts.push(`<p class="seclabel">${esc(b.heading)}</p>`);
+    if (b.text)    parts.push(`<p class="detail">${esc(b.text)}</p>`);
+    if (Array.isArray(b.bullets) && b.bullets.length)
+      parts.push(`<ul class="detail-list">${b.bullets.map(i => `<li>${esc(i)}</li>`).join("")}</ul>`);
+    if (b.image && b.image.src)
+      parts.push(`<figure class="detail-figure">
+        <img src="${esc(b.image.src)}" alt="${esc(b.image.alt || "")}" loading="lazy">
+        ${b.image.caption ? `<figcaption>${esc(b.image.caption)}</figcaption>` : ""}
+      </figure>`);
+    return parts.length ? `<div class="detail-block">${parts.join("")}</div>` : "";
   }
 
   function panelHTML(p) {
     const links = (p.links || []).filter(l => l.url && l.url.trim())
       .map(l => `<a class="link" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} →</a>`).join("");
+    const details = (p.details || []).map(detailBlock).join("");
     return `
       <div class="panel-head">
         <button class="panel-close" aria-label="Close case study">✕</button>
@@ -286,11 +332,9 @@
       </div>
       <div class="panel-body">
         <div class="impact"><span class="lbl">Impact</span><p>${emphasizeNumbers(p.impact)}</p></div>
-        <div><p class="seclabel">The problem</p><p class="detail">${esc(p.context)}</p></div>
-        <div><p class="seclabel">What I did</p><p class="detail">${esc(p.contribution)}</p></div>
-        ${section("Method", p.method)}
-        ${section("What we learned", p.findings)}
-        ${section("Where it led", p.outcome)}
+        <div class="detail-block"><p class="seclabel">The problem</p><p class="detail">${esc(p.context)}</p></div>
+        <div class="detail-block"><p class="seclabel">What I did</p><p class="detail">${esc(p.contribution)}</p></div>
+        ${details}
         ${(p.tags && p.tags.length) ? `<div class="tags">${p.tags.map(t => `<span class="tag">${esc(t)}</span>`).join("")}</div>` : ""}
         ${links ? `<div class="links">${links}</div>` : ""}
       </div>`;
