@@ -1,0 +1,46 @@
+<svg viewBox="0 0 600 520" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#a85d12"/>
+    </marker>
+  </defs>
+
+  <!-- Step 1 -->
+  <g>
+    <rect x="70" y="24" width="490" height="84" rx="12" fill="#ffffff" stroke="#e8e4dc" stroke-width="1.5"/>
+    <circle cx="106" cy="66" r="18" fill="#a85d12"/>
+    <text x="106" y="71" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">1</text>
+    <text x="142" y="61" font-size="16.5" font-weight="700" fill="#1c2421">Partner submits a request</text>
+    <text x="142" y="84" font-size="13" fill="#58635d">Google Form — picks a match/venue page + channel</text>
+  </g>
+  <line x1="315" y1="110" x2="315" y2="150" stroke="#a85d12" stroke-width="2" marker-end="url(#ah)"/>
+
+  <!-- Step 2 -->
+  <g>
+    <rect x="70" y="154" width="490" height="84" rx="12" fill="#ffffff" stroke="#e8e4dc" stroke-width="1.5"/>
+    <circle cx="106" cy="196" r="18" fill="#a85d12"/>
+    <text x="106" y="201" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">2</text>
+    <text x="142" y="191" font-size="16.5" font-weight="700" fill="#1c2421">Response syncs to a Sheet</text>
+    <text x="142" y="214" font-size="13" fill="#58635d">Google Sheets logs every submission</text>
+  </g>
+  <line x1="315" y1="240" x2="315" y2="280" stroke="#a85d12" stroke-width="2" marker-end="url(#ah)"/>
+
+  <!-- Step 3 -->
+  <g>
+    <rect x="70" y="284" width="490" height="84" rx="12" fill="#ffffff" stroke="#e8e4dc" stroke-width="1.5"/>
+    <circle cx="106" cy="326" r="18" fill="#a85d12"/>
+    <text x="106" y="331" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">3</text>
+    <text x="142" y="321" font-size="16.5" font-weight="700" fill="#1c2421">Apps Script builds the UTM</text>
+    <text x="142" y="344" font-size="13" fill="#58635d">Looks the request up in a reference table, then concatenates the tag</text>
+  </g>
+  <line x1="315" y1="370" x2="315" y2="410" stroke="#a85d12" stroke-width="2" marker-end="url(#ah)"/>
+
+  <!-- Step 4 -->
+  <g>
+    <rect x="70" y="414" width="490" height="84" rx="12" fill="#faf2e9" stroke="#a85d12" stroke-width="1.5"/>
+    <circle cx="106" cy="456" r="18" fill="#a85d12"/>
+    <text x="106" y="461" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">4</text>
+    <text x="142" y="451" font-size="16.5" font-weight="700" fill="#82480e">Tagged URL returned</text>
+    <text x="142" y="474" font-size="13" fill="#82480e">Ready-to-use link on the confirmation page</text>
+  </g>
+</svg>
