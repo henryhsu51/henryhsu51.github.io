@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INTL WoW Traffic Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F5F3EE;
+    --surface: #FFFFFF;
+    --surface2: #EDEBE5;
+    --border: rgba(0,0,0,0.08);
+    --border2: rgba(0,0,0,0.14);
+    --text: #1A1A16;
+    --text2: #6B6960;
+    --text3: #9B9890;
+    --up: #1A7A54;
+    --up-bg: #D6F0E4;
+    --down: #B84030;
+    --down-bg: #FAE0DC;
+    --neutral: #5C6BC0;
+    --neutral-bg: #E8EAF6;
+    --accent: #2563EB;
+    --accent-light: #DBEAFE;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--text2);
+  }
+  .logo span { color: var(--text); }
+  .header-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .demo-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 99px;
+    background: var(--neutral-bg);
+    color: var(--neutral);
+  }
+
+  /* LAYOUT */
+  .container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 4px; margin-bottom: 28px; background: var(--surface2); border-radius: var(--radius); padding: 4px; width: fit-content; }
+  .tab { padding: 7px 18px; border-radius: 7px; border: none; background: none; font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; transition: all 0.15s; }
+  .tab:hover { color: var(--text); }
+  .tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+  /* METRIC CARDS */
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+  .metric-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+  }
+  .metric-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); margin-bottom: 8px; }
+  .metric-value { font-size: 22px; font-weight: 600; line-height: 1.2; margin-bottom: 4px; }
+  .metric-sub { font-family: var(--mono); font-size: 11px; color: var(--text2); }
+  .metric-card.up .metric-value { color: var(--up); }
+  .metric-card.down .metric-value { color: var(--down); }
+
+  /* SECTION */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text3);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* COUNTRY TABLE */
+  .country-table { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .ct-header {
+    display: grid;
+    grid-template-columns: 2fr 110px 110px 90px 90px;
+    gap: 12px;
+    padding: 10px 20px;
+    background: var(--surface2);
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text3);
+  }
+  .ct-header span:not(:first-child) { text-align: right; }
+  .ct-row {
+    display: grid;
+    grid-template-columns: 2fr 110px 110px 90px 90px;
+    gap: 12px;
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .ct-row:hover { background: #FAFAF8; }
+  .ct-row.selected { background: var(--accent-light); }
+  .ct-country { display: flex; align-items: center; gap: 10px; }
+  .ct-flag { font-size: 20px; line-height: 1; }
+  .ct-name { font-size: 13px; font-weight: 500; }
+  .ct-total { font-family: var(--mono); font-size: 12px; color: var(--text2); text-align: right; }
+  .ct-avg { font-family: var(--mono); font-size: 12px; color: var(--text2); text-align: right; }
+  .ct-wow { font-family: var(--mono); font-size: 13px; font-weight: 500; text-align: right; }
+  .ct-wow.up { color: var(--up); }
+  .ct-wow.down { color: var(--down); }
+  .ct-wow.flat { color: var(--text2); }
+  .ct-badge { text-align: right; }
+  .badge { font-family: var(--mono); font-size: 10px; font-weight: 500; padding: 3px 8px; border-radius: 99px; }
+  .badge.sig { background: var(--up-bg); color: var(--up); }
+  .badge.ns { background: var(--surface2); color: var(--text3); }
+
+  /* PANEL LAYOUT */
+  .panel-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  /* CHART CONTAINER */
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+  }
+  .chart-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .chart-sub { font-size: 12px; color: var(--text2); margin-bottom: 16px; }
+
+  /* SIG TRENDS */
+  .sig-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+  .sig-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .sig-country { display: flex; align-items: center; gap: 8px; }
+  .sig-flag { font-size: 24px; }
+  .sig-name { font-size: 15px; font-weight: 600; }
+  .sig-p { font-family: var(--mono); font-size: 11px; color: var(--text2); }
+  .sig-stats { display: flex; gap: 16px; }
+  .sig-stat { }
+  .sig-stat-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); }
+  .sig-stat-val { font-family: var(--mono); font-size: 14px; font-weight: 500; }
+  .sig-stat-val.up { color: var(--up); }
+  .sig-stat-val.down { color: var(--down); }
+  .sig-insight { font-size: 12px; color: var(--text2); line-height: 1.6; padding: 10px 12px; background: var(--surface2); border-radius: var(--radius); margin-top: 10px; }
+
+  /* DETAIL VIEW */
+  .detail-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .pick-btn {
+    padding: 5px 12px; border-radius: 99px; border: 1px solid var(--border2);
+    background: var(--surface); font-family: var(--sans); font-size: 12px; font-weight: 500;
+    color: var(--text2); cursor: pointer; transition: all 0.12s;
+  }
+  .pick-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .pick-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .detail-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .ds-card { background: var(--surface2); border-radius: var(--radius); padding: 14px 16px; }
+  .ds-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); margin-bottom: 6px; }
+  .ds-val { font-family: var(--mono); font-size: 18px; font-weight: 500; }
+  .ds-val.up { color: var(--up); }
+  .ds-val.down { color: var(--down); }
+
+  /* TAB PANELS */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* INSIGHT BOX */
+  .insight-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.7;
+  }
+  .insight-box strong { color: var(--text); }
+
+  @media (max-width: 768px) {
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+    .panel-layout { grid-template-columns: 1fr; }
+    .ct-header, .ct-row { grid-template-columns: 2fr 90px 80px; }
+    .ct-header span:nth-child(3), .ct-header span:nth-child(5),
+    .ct-row .ct-avg, .ct-row .ct-badge { display: none; }
+    .detail-stats { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="logo"><span>INTL</span> · WoW Traffic Dashboard</div>
+    <span class="demo-tag">Sample data</span>
+  </div>
+  <div class="header-meta">Mar 9 – May 25, 2026 &nbsp;·&nbsp; 12 weeks &nbsp;·&nbsp; Top 20 markets</div>
+</header>
+
+<div class="container">
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('overview', this)">Overview</button>
+    <button class="tab" onclick="showTab('trends', this)">Trend analysis</button>
+    <button class="tab" onclick="showTab('detail', this)">Country detail</button>
+  </div>
+
+  <!-- OVERVIEW TAB -->
+  <div class="tab-panel active" id="tab-overview">
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Top market</div>
+        <div class="metric-value">&#127468;&#127463; UK</div>
+        <div class="metric-sub">121,671 total &nbsp;·&nbsp; 10,139 avg/wk</div>
+      </div>
+      <div class="metric-card up">
+        <div class="metric-label">Fastest growing</div>
+        <div class="metric-value">&#127462;&#127479; Argentina</div>
+        <div class="metric-sub">+152% recent WoW &nbsp;·&nbsp; p=0.006</div>
+      </div>
+      <div class="metric-card down">
+        <div class="metric-label">Sharpest decline</div>
+        <div class="metric-value">&#127481;&#127479; Turkey</div>
+        <div class="metric-sub">-45% recent WoW &nbsp;·&nbsp; p=0.049</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Significant trends</div>
+        <div class="metric-value">4 countries</div>
+        <div class="metric-sub">ARG &nbsp;·&nbsp; IND &nbsp;·&nbsp; TUR &nbsp;·&nbsp; HKG</div>
+      </div>
+    </div>
+
+    <div class="section-label">All markets — 12-week performance</div>
+    <div class="country-table">
+      <div class="ct-header">
+        <span>Country</span>
+        <span>Total traffic</span>
+        <span>Avg / week</span>
+        <span>Recent WoW</span>
+        <span>Significance</span>
+      </div>
+      <div id="country-table-body"></div>
+    </div>
+  </div>
+
+  <!-- TRENDS TAB -->
+  <div class="tab-panel" id="tab-trends">
+    <div class="insight-box">
+      <strong>How to read this:</strong> "Recent WoW" compares the last 4 weeks average vs the prior 4 weeks. "Significant" means the recent 6-week linear trend passes a p&lt;0.05 statistical test — these are the highest-confidence signals for budget decisions.
+    </div>
+
+    <div class="section-label" style="margin-bottom:16px;">Statistically significant trends (p &lt; 0.05)</div>
+    <div id="sig-trends-container"></div>
+
+    <div class="section-label" style="margin-top:28px;margin-bottom:16px;">All markets — recent WoW % change (last 4 wks vs prior 4 wks)</div>
+    <div class="chart-card">
+      <div style="position:relative;width:100%;height:520px;">
+        <canvas id="wowBarChart" role="img" aria-label="Horizontal bar chart of week-over-week traffic change by country, sorted by magnitude"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAIL TAB -->
+  <div class="tab-panel" id="tab-detail">
+    <div class="section-label">Select a market</div>
+    <div class="detail-picker" id="detail-picker"></div>
+    <div id="detail-content"></div>
+  </div>
+
+</div>
+
+<footer style="max-width:1200px;margin:0 auto;padding:0 24px 40px;font-family:var(--mono);font-size:11px;color:var(--text3);line-height:1.6;">
+  All figures shown are illustrative sample data for portfolio demonstration only.
+</footer>
+
+<script>
+const COUNTRIES = [
+  {country:"United Kingdom",flag:"&#127468;&#127463;",code:"GBR",total:121671,avg:10139.25,slope_full:825.8,slope_recent:1017.2,p_full:0.038,p_recent:0.175,wow:33.0,weekly:[5079,3900,8930,14387,8719,8070,12552,10714,11437,10190,13207,18426],weeks:["03/09","03/16","03/23","03/30","04/06","04/13","04/20","04/27","05/04","05/11","05/18","05/25"]},
+  {country:"Argentina",flag:"&#127462;&#127479;",code:"ARG",total:124922,avg:10410.17,slope_full:1318.5,slope_recent:2402.9,p_full:0.003,p_recent:0.006,wow:152.2,weekly:[5404,1418,4034,8198,4314,4296,7744,13397,16695,17856,20265,20211],weeks:["03/09","03/16","03/23","03/30","04/06","04/13","04/20","04/27","05/04","05/11","05/18","05/25"]},
+  {country:"Colombia",flag:"&#127464;&#127476;",code:"COL",total:103187,avg:8598.92,slope_full:256.9,slope_recent:-802.4,p_full:0.448,p_recent:0.344,wow:0.4,weekly:[6486,2361,7971,11681,6133,5287,16825,11780,9739,8159,9195,13075],weeks:["03/09","03/16","03/23","03/30","04/06","04/13","04/20","04/27","05/04","05/11","05/18","05/25"]},
+  {country:"Brazil",flag:"&#127463;&#127479;",code:"BRA",total:84906,avg:7075.5,slope_full:536.8,slope_recent:680.4,p_full:0.057,p_recent:0.207,wow:34.2,weekly:[2497,2389,5922,10423,6196,5664,8949,6283,7057,7199,11594,10497],weeks:["03/09","03/16","03/23","03/30","04/06","04/13","04/20","04/27","05/04","05/11","05/18","05/25"]},
+  {country:"Germany",flag:"&#127465;&#127466;",code:"DEU",total:55934,avg:4661.2,slope_full:388.9,slope_recent:274.9,p_full:0.108,p_recent:0.520,wow:31.2,weekly:[1505,1429,3439,8355,3356,3193,7103,3855,4598,4691,5885,7791],weeks:["03/09","03/16","03/23","03/30","04/06","04/13","04/20","04/27","05/04","05/11","05/18","05/25"]},
+  {country:"Japan",flag:"&#127471;&#127477;",code:"JPN",total:47523,avg:3960.25,slope_full:259.1,slope_recent:271.6,p_full:0.134,p_recent:0.096,wow:27.9,weekly:[1851,1627,2591,8172,3838,2973,4364,3519,4370,4122,4700,5606],weeks:["03/09","03/16","03/23","03/30","04/06","04/13","04/20","04/27","05/04","05/11","05/18","05/25"]},
+  {country:"France",flag:"&#127467;&#127479;",code:"FRA",total:43521,avg:3626.75,slope_full:235.6,slope_recent:-98.3,p_full:0.133,p_recent:0.748,wow:14.9,weekly:[1926,1243,3330,5470,2395,2263,6307,3672,3536,3790,4310,5185],weeks:["03/09","03/16","03/23","03/30","04/06","04/13","04/20","04/27","05/04","05/11","05/18","05/25"]},
+  {country:"India",flag:"&#127470;&#127475;",code:"IND",total:43234,avg:3602.8,slope_full:289.2,slope_recent:759.8,p_full:0.072,p_recent:0.018,wow:80.1,weekly:[5026,1608,2449,4049,2412,2315,3087,2931,3334,3483,5989,6541],weeks:["03/09","03/16","03/23","03/30","04/06","04/13","04/20","04/27","05/04","05/11","05/18","05/25"]},
+  {country:"Turkey",flag:"&#127481;&#127479;",code:"TUR",total:37530,avg:3127.5,slope_full:-479.0,slope_recent:-290.7,p_full:0.028,p_recent:0.049,wow:-44.8,weekly:[382,373,1365,15729,4486,3181,3476,2615,2081,1623,1970,1920],weeks:["03/09","03/16","03/23","03/30","04/06","04/13","04/20","04/27","05/04","05/11","05/18","05/25"]},
+  {country:"Australia",flag:"&#127462;&#127482;",code:"AUS",total:32580,avg:2715.0,slope_full:161.5,slope_recent:158.4,p_full:0.215,p_recent:0.265,wow:23.7,weekly:[1842,1289,1807,4013,2332,2063,3305,2940,2928,2616,3452,4169],weeks:["03/09","03/16","03/23","03/30","04/06","04/13","04/20","04/27","05/04","05/11","05/18","05/25"]},
+  {country:"Spain",flag:"&#127466;&#127480;",code:"ESP",total:32566,avg:2713.8,slope_full:210.2,slope_recent:139.6,p_full:0.170,p_recent:0.626,wow:30.0,weekly:[1306,938,2253,3161,1909,1746,4533,2617,2884,2590,3595,4982],weeks:["03/09","03/16","03/23","03/30","04/06","04/13","04/20","04/27","05/04","05/11","05/18","05/25"]},
+  {country:"Ecuador",flag:"&#127466;&#127464;",code:"ECU",total:31403,avg:2616.9,slope_full:71.6,slope_recent:-108.8,p_full:0.710,p_recent:0.607,wow:-1.6,weekly:[1768,743,1981,4063,2228,1772,3686,4229,2713,2399,2709,3899],weeks:["03/09","03/16","03/23","03/30","04/06","04/13","04/20","04/27","05/04","05/11","05/18","05/25"]},
+  {country:"Morocco",flag:"&#127474;&#127462;",code:"MAR",total:27670,avg:2305.8,slope_full:37.0,slope_recent:-326.7,p_full:0.832,p_recent:0.325,wow:-20.3,weekly:[4110,936,1541,2360,1122,945,4150,4309,1482,1417,2567,2921],weeks:["03/09","03/16","03/23","03/30","04/06","04/13","04/20","04/27","05/04","05/11","05/18","05/25"]},
+  {country:"Netherlands",flag:"&#127475;&#127473;",code:"NLD",total:25362,avg:2113.5,slope_full:293.2,slope_recent:452.7,p_full:0.165,p_recent:0.326,wow:63.2,weekly:[595,534,1289,2732,1346,1204,3517,1549,1993,1773,2509,6154],weeks:["03/09","03/16","03/23","03/30","04/06","04/13","04/20","04/27","05/04","05/11","05/18","05/25"]},
+  {country:"Guatemala",flag:"&#127468;&#127481;",code:"GTM",total:23107,avg:1925.6,slope_full:191.9,slope_recent:188.3,p_full:0.068,p_recent:0.233,wow:39.2,weekly:[1572,551,1161,1945,1339,1282,2786,2895,1973,2539,3295,3751],weeks:["03/09","03/16","03/23","03/30","04/06","04/13","04/20","04/27","05/04","05/11","05/18","05/25"]},
+  {country:"China",flag:"&#127464;&#127475;",code:"CHN",total:22419,avg:1868.3,slope_full:155.6,slope_recent:201.2,p_full:0.212,p_recent:0.110,wow:35.8,weekly:[978,1031,1268,3701,1644,1378,2404,1822,2100,1896,2657,3540],weeks:["03/09","03/16","03/23","03/30","04/06","04/13","04/20","04/27","05/04","05/11","05/18","05/25"]},
+  {country:"Congo (DRC)",flag:"&#127464;&#127465;",code:"COD",total:36221,avg:3018.4,slope_full:-448.2,slope_recent:-1906.3,p_full:0.181,p_recent:0.074,wow:-83.4,weekly:[2011,1237,2304,3901,2152,2088,17082,7423,3285,1972,1241,985],weeks:["03/09","03/16","03/23","03/30","04/06","04/13","04/20","04/27","05/04","05/11","05/18","05/25"]},
+  {country:"South Africa",flag:"&#127487;&#127462;",code:"ZAF",total:18912,avg:1576.0,slope_full:-77.2,slope_recent:-482.5,p_full:0.697,p_recent:0.276,wow:-26.1,weekly:[1432,803,1401,2106,1245,1202,3201,2912,2218,1567,1322,1503],weeks:["03/09","03/16","03/23","03/30","04/06","04/13","04/20","04/27","05/04","05/11","05/18","05/25"]},
+  {country:"Bangladesh",flag:"&#127463;&#127465;",code:"BGD",total:17123,avg:1426.9,slope_full:52.9,slope_recent:-153.9,p_full:0.717,p_recent:0.529,wow:24.6,weekly:[1289,542,1012,2134,987,921,1876,1754,1598,1423,1743,1844],weeks:["03/09","03/16","03/23","03/30","04/06","04/13","04/20","04/27","05/04","05/11","05/18","05/25"]},
+  {country:"Hong Kong",flag:"&#127469;&#127472;",code:"HKG",total:15987,avg:1332.3,slope_full:104.3,slope_recent:123.1,p_full:0.032,p_recent:0.027,wow:46.3,weekly:[478,412,698,1432,876,821,1498,1123,1345,1476,1989,2389],weeks:["03/09","03/16","03/23","03/30","04/06","04/13","04/20","04/27","05/04","05/11","05/18","05/25"]}
+];
+
+const SIG_INSIGHTS = {
+  "Argentina": "Traffic surged from ~5K in early March to ~20K by May — a consistent, accelerating ramp with no single spike. Strong candidate for increased retargeting spend and bid scaling.",
+  "India": "Slope nearly doubled in the last 6 weeks (+760/wk). Still an underspent market relative to its trajectory. High efficiency opportunity for prospecting and retargeting campaigns.",
+  "Turkey": "A massive one-time spike in late March (15,729 in one week) followed by a steady fall to ~1,900/wk. The spike likely reflects a viral moment or campaign burst. Investigate before cutting budget — the core audience may still be valuable.",
+  "Hong Kong": "Smaller market but the most consistent growth signal across all 12 weeks. Steady, organic-looking uptrend — ideal for precision retargeting at scale."
+};
+
+let wowChart = null;
+let detailChart = null;
+let selectedCountry = null;
+
+// RENDER COUNTRY TABLE
+function renderTable() {
+  const body = document.getElementById('country-table-body');
+  COUNTRIES.forEach(d => {
+    const wowClass = d.wow > 10 ? 'up' : d.wow < -10 ? 'down' : 'flat';
+    const sigClass = d.p_recent < 0.05 ? 'sig' : 'ns';
+    const sigLabel = d.p_recent < 0.05 ? '&#10003; sig' : 'n.s.';
+    const row = document.createElement('div');
+    row.className = 'ct-row' + (selectedCountry === d.country ? ' selected' : '');
+    row.innerHTML = `
+      <div class="ct-country">
+        <span class="ct-flag">${d.flag}</span>
+        <span class="ct-name">${d.country}</span>
+      </div>
+      <div class="ct-total">${d.total.toLocaleString()}</div>
+      <div class="ct-avg">${Math.round(d.avg).toLocaleString()}</div>
+      <div class="ct-wow ${wowClass}">${d.wow > 0 ? '+' : ''}${d.wow.toFixed(1)}%</div>
+      <div class="ct-badge"><span class="badge ${sigClass}">${sigLabel}</span></div>
+    `;
+    row.onclick = () => {
+      selectedCountry = d.country;
+      document.querySelectorAll('.ct-row').forEach(r => r.classList.remove('selected'));
+      row.classList.add('selected');
+      showTab('detail', document.querySelectorAll('.tab')[2]);
+      setTimeout(() => selectCountry(d.country), 50);
+    };
+    body.appendChild(row);
+  });
+}
+
+// RENDER SIG TRENDS
+function renderSigTrends() {
+  const container = document.getElementById('sig-trends-container');
+  const sigCountries = COUNTRIES.filter(d => d.p_recent < 0.05);
+  sigCountries.forEach(d => {
+    const wowClass = d.wow > 0 ? 'up' : 'down';
+    const dirClass = d.slope_recent > 0 ? 'up' : 'down';
+    const dir = d.slope_recent > 0 ? '+' + Math.round(d.slope_recent).toLocaleString() + '/wk' : Math.round(d.slope_recent).toLocaleString() + '/wk';
+    const card = document.createElement('div');
+    card.className = 'sig-card';
+    card.innerHTML = `
+      <div class="sig-card-header">
+        <div class="sig-country">
+          <span class="sig-flag">${d.flag}</span>
+          <div>
+            <div class="sig-name">${d.country}</div>
+            <div class="sig-p">p = ${d.p_recent.toFixed(3)} &nbsp;&middot;&nbsp; statistically significant</div>
+          </div>
+        </div>
+        <div class="sig-stats">
+          <div class="sig-stat">
+            <div class="sig-stat-label">Recent WoW</div>
+            <div class="sig-stat-val ${wowClass}">${d.wow > 0 ? '+' : ''}${d.wow.toFixed(1)}%</div>
+          </div>
+          <div class="sig-stat">
+            <div class="sig-stat-label">Trend slope</div>
+            <div class="sig-stat-val ${dirClass}">${dir}</div>
+          </div>
+          <div class="sig-stat">
+            <div class="sig-stat-label">Avg / week</div>
+            <div class="sig-stat-val">${Math.round(d.avg).toLocaleString()}</div>
+          </div>
+        </div>
+      </div>
+      <div class="sig-insight">${SIG_INSIGHTS[d.country] || ''}</div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// WOW BAR CHART
+function renderWowChart() {
+  if (wowChart) { wowChart.destroy(); wowChart = null; }
+  const sorted = [...COUNTRIES].sort((a, b) => b.wow - a.wow);
+  const colors = sorted.map(d => d.wow > 10 ? '#1A7A54' : d.wow < -10 ? '#B84030' : '#9B9890');
+  wowChart = new Chart(document.getElementById('wowBarChart'), {
+    type: 'bar',
+    data: {
+      labels: sorted.map(d => d.code),
+      datasets: [{
+        label: 'WoW change %',
+        data: sorted.map(d => parseFloat(d.wow.toFixed(1))),
+        backgroundColor: colors,
+        borderRadius: 4,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: ctx => sorted[ctx[0].dataIndex].country,
+            label: ctx => ` ${ctx.raw > 0 ? '+' : ''}${ctx.raw}% WoW`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(0,0,0,0.06)' },
+          ticks: { color: '#9B9890', font: { family: 'DM Mono', size: 11 }, callback: v => v + '%' }
+        },
+        y: {
+          ticks: { color: '#6B6960', font: { family: 'DM Mono', size: 11 } },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+// DETAIL PICKER
+function renderDetailPicker() {
+  const picker = document.getElementById('detail-picker');
+  if (picker.children.length > 0) return;
+  COUNTRIES.forEach(d => {
+    const btn = document.createElement('button');
+    btn.className = 'pick-btn' + (selectedCountry === d.country ? ' active' : '');
+    btn.innerHTML = d.flag + ' ' + d.country;
+    btn.onclick = () => {
+      document.querySelectorAll('.pick-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectCountry(d.country);
+    };
+    picker.appendChild(btn);
+  });
+  if (selectedCountry) selectCountry(selectedCountry);
+  else selectCountry(COUNTRIES[0].country);
+}
+
+function selectCountry(name) {
+  selectedCountry = name;
+  const d = COUNTRIES.find(x => x.country === name);
+  if (!d) return;
+  const content = document.getElementById('detail-content');
+
+  const wowClass = d.wow > 10 ? 'up' : d.wow < -10 ? 'down' : '';
+  const dirClass = d.slope_recent > 50 ? 'up' : d.slope_recent < -50 ? 'down' : '';
+  const dir = d.slope_recent > 50 ? 'Upward' : d.slope_recent < -50 ? 'Downward' : 'Flat';
+  const sigText = d.p_recent < 0.05
+    ? `<span style="color:var(--up)">&#10003; Statistically significant (p=${d.p_recent.toFixed(3)})</span>`
+    : `<span style="color:var(--text3)">Not significant (p=${d.p_recent.toFixed(3)})</span>`;
+
+  content.innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <span style="font-size:36px">${d.flag}</span>
+      <div>
+        <div style="font-size:20px;font-weight:600">${d.country}</div>
+        <div style="font-size:13px;color:var(--text2)">${sigText}</div>
+      </div>
+    </div>
+    <div class="detail-stats">
+      <div class="ds-card"><div class="ds-label">Total traffic</div><div class="ds-val">${d.total.toLocaleString()}</div></div>
+      <div class="ds-card"><div class="ds-label">Avg / week</div><div class="ds-val">${Math.round(d.avg).toLocaleString()}</div></div>
+      <div class="ds-card"><div class="ds-label">Recent WoW</div><div class="ds-val ${wowClass}">${d.wow > 0 ? '+' : ''}${d.wow.toFixed(1)}%</div></div>
+      <div class="ds-card"><div class="ds-label">Trend (recent)</div><div class="ds-val ${dirClass}">${dir}</div></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">${d.country} — weekly traffic</div>
+      <div class="chart-sub">Mar 9 – May 25, 2026 &nbsp;·&nbsp; dashed line = linear trend</div>
+      <div style="display:flex;gap:16px;margin-bottom:12px;font-size:12px;color:var(--text2);">
+        <span style="display:flex;align-items:center;gap:5px;"><span style="width:12px;height:3px;background:#2563EB;display:inline-block;border-radius:2px;"></span>Weekly traffic</span>
+        <span style="display:flex;align-items:center;gap:5px;"><span style="width:12px;height:2px;border-top:2px dashed ${d.slope_full > 0 ? '#1A7A54' : '#B84030'};display:inline-block;"></span>Trend line</span>
+      </div>
+      <div style="position:relative;width:100%;height:240px;">
+        <canvas id="detailChartCanvas" role="img" aria-label="Weekly traffic line chart for ${d.country}">Weekly traffic for ${d.country} from March to May 2026.</canvas>
+      </div>
+    </div>
+  `;
+
+  if (detailChart) { detailChart.destroy(); detailChart = null; }
+
+  const mean = d.avg;
+  const mid = (d.weekly.length - 1) / 2;
+  const trendLine = d.weekly.map((_, i) => Math.round(mean + d.slope_full * (i - mid)));
+
+  detailChart = new Chart(document.getElementById('detailChartCanvas'), {
+    type: 'line',
+    data: {
+      labels: d.weeks,
+      datasets: [
+        {
+          label: 'Traffic',
+          data: d.weekly,
+          borderColor: '#2563EB',
+          backgroundColor: 'rgba(37,99,235,0.07)',
+          borderWidth: 2,
+          pointRadius: 4,
+          pointBackgroundColor: '#2563EB',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          fill: true,
+          tension: 0.35
+        },
+        {
+          label: 'Trend',
+          data: trendLine,
+          borderColor: d.slope_full > 0 ? '#1A7A54' : '#B84030',
+          borderWidth: 2,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${ctx.raw.toLocaleString()}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#9B9890', font: { family: 'DM Mono', size: 11 }, maxRotation: 45 },
+          grid: { display: false }
+        },
+        y: {
+          ticks: { color: '#9B9890', font: { family: 'DM Mono', size: 11 }, callback: v => v >= 1000 ? (v/1000).toFixed(1) + 'K' : v },
+          grid: { color: 'rgba(0,0,0,0.05)' }
+        }
+      }
+    }
+  });
+}
+
+// TABS
+function showTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'trends') renderWowChart();
+  if (name === 'detail') renderDetailPicker();
+}
+
+renderTable();
+renderSigTrends();
+</script>
+</body>
+</html>

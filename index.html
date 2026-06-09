@@ -221,9 +221,6 @@
         contribution: "I proposed the idea, won leadership buy-in, and led the project with a PM and data scientists — designing two nudges: a cart cross-sell powered by market-basket analysis, and a sales-assist pop-up aimed at high-intent visitors who hadn't converted.",
         impact: "The two nudges generated over $1 million in incremental revenue within two months of launch — with no extra ad spend.",
         tags: ["Data Analysis", "Market Basket Analysis", "Amplitude", "Behavioral Targeting"],
-        links: [
-          // Add a demo, dashboard, or write-up link later, e.g. { label: "Write-up", url: "https://..." }
-        ],
         details: [
           { heading: "Nudge 1 — Cart cross-sell", bullets: [
             "Ran a market-basket analysis on all historical purchase data",
@@ -240,13 +237,32 @@
           { heading: "The Sales Assist Pop-Up",
             image: { src: "assets/purchase-nudges/sales-assist-popup.PNG",} },
           { heading: "Why it worked", text: "Both nudges ran on data and product surfaces we already owned, so there was no new ad spend — they simply converted existing traffic and purchase patterns into incremental revenue." }
- 
-          // 👇 TO ADD A SCREENSHOT: upload the file to assets/purchase-nudges/ in your
-          //    repo, then add a block like this inside this details array:
-          // ,{ heading: "The cart cross-sell pop-up",
-          //    image: { src: "assets/purchase-nudges/cross-sell-popup.png",
-          //             alt: "Screenshot of the cart cross-sell recommendation pop-up",
-          //             caption: "Recommends the highest-lift companion match." } }
+        ]
+      },
+
+      {
+        title: "Marketing Geo Performance Dashboard",
+        type: "Data",
+        headline: "Built the dashboard that guided the team's country-level budget decisions — over the same 12 weeks, marketing ROAS improved by roughly 40-50%.",
+        context: "Our FIFA World Cup hospitality marketing team needed to see performance country by country — not just in aggregate — to catch where demand was climbing or slipping and steer spend accordingly. There was no trusted view of which geographies were trending up or down, or whether a shift was real signal or just noise.",
+        contribution: "I designed and built an interactive HTML dashboard that marketing stakeholders could explore on their own. It pulls the last 12 weeks of traffic by country, fits a regression line to each market to test whether a trend is statistically significant, and surfaces executive insights on where to add or pull back budget.",
+        impact: "Over the 12 weeks the dashboard guided budget decisions, marketing ROAS improved by roughly 40-50%, settling at a markedly higher and more stable level.",
+        tags: ["Data Visualization", "Regression Analysis", "Marketing Analytics", "JavaScript", "Claude"],
+        links: [
+          { label: "Live interactive dashboard", url: "assets/mkt-geo-dashboard/dashboard.html" }
+        ],
+        details: [
+          { heading: "What it shows", bullets: [
+            "The past 12 weeks of overall traffic, broken down by country",
+            "A regression line fit to each market to test whether its trend is statistically significant",
+            "Clear uplift vs. downlift flags, so a real trend isn't confused with week-to-week noise"
+          ] },
+          { heading: "Geo Dashboard Overview",
+            image: { src: "assets/mkt-geo-dashboard/geo-dashboard-1.PNG",} },
+          { heading: "Country WoW Trending Charts",
+            image: { src: "assets/mkt-geo-dashboard/geo-dashboard-2.PNG",} },
+          { heading: "Executive insights", text: "Beyond the charts, the dashboard calls out specific countries to act on — where to lean in with budget and where to scale back — so leadership gets a recommendation, not just a report." },
+          { heading: "Reading the trend honestly", text: "ROAS improved over the period, but I flagged a caveat to leadership: with a fixed event date approaching, some uplift reflects naturally rising demand, not campaign changes alone. That's exactly why the dashboard leans on regression and significance testing — to separate genuine, country-specific trends from the seasonal pull of the event." },
         ]
       },
 
@@ -259,7 +275,7 @@
         impact: "Sales partners now generate their own tracking links on demand — 170K+ possible combinations across 120 landing pages, 15 channels, and 95 partners — hundreds created so far, and the recurring ad-hoc request process is permanently eliminated.",
         tags: ["JavaScript", "Claude", "UX Design"],
         links: [
-          // Add a demo or write-up link later, e.g. { label: "Live demo", url: "https://..." }
+          { label: "UTM Generator URL (Demo)", url: "https://script.google.com/macros/s/AKfycbwsL5zyfRIbAkfSagbVACQrmQbsgDBnu_etGFr2DJdk-A9_haWAgHjwF9__OHrtpXJ3/exec?email=test123@gmail.com" }
         ],
         details: [
           { heading: "The challenge", text: "120 landing pages × 15 channels × 95 partners adds up to 170K+ possible tagged links. A single master list would be impossible to navigate and mostly wasted — each partner uses only a handful — and the requests never stopped as partners changed strategy. All of it had to ship in two weeks." },
@@ -272,13 +288,6 @@
           { heading: "UTM Generator Page",
             image: { src: "assets/utm-generator/utm-page-2.JPG",} },
           { heading: "Built with", text: "Google Forms + Google Sheets + Apps Script(JavaScript) for the HTML Page — prototyped and iterate 4 times by using Claude to hit the deadline." }
-
-          // 👇 TO ADD A SCREENSHOT: upload the file to assets/utm-generator/ in your
-          //    repo, then add a block like this inside this details array:
-          // ,{ heading: "The partner-facing form",
-          //    image: { src: "assets/utm-generator/utm-form.png",
-          //             alt: "Screenshot of the UTM request Google Form",
-          //             caption: "Partners self-serve in a few clicks." } }
         ]
       }
     ],
